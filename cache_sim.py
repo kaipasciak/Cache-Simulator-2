@@ -9,6 +9,7 @@ MEMORY_SIZE      = 65536 # 2^16
 CACHE_SIZE       = 1024  # 2^10
 CACHE_BLOCK_SIZE = 64    # 2^6
 ASSOCIATIVITY    = 1     # direct mapped
+WRITE_TYPE = 0           # write through
 
 NUM_SETS = (CACHE_SIZE // (CACHE_BLOCK_SIZE * ASSOCIATIVITY))
 NUM_BLOCKS = (CACHE_SIZE // CACHE_BLOCK_SIZE)
@@ -48,7 +49,7 @@ class CacheSet:
 #======================================================================
 
 class Cache:
-  def __init__(self, num_sets, associativity, cache_block_size):
+  def __init__(self, num_sets, associativity, cache_block_size, write_type):
     self.sets = [CacheSet(cache_block_size, associativity) \
                     for i in range(num_sets)]
     memory_size_bits = logb2(MEMORY_SIZE)
@@ -56,6 +57,7 @@ class Cache:
     self.cache_block_size_bits = logb2(CACHE_BLOCK_SIZE)
     self.index_length = logb2(NUM_SETS)
     self.block_offset_length = logb2(CACHE_BLOCK_SIZE)
+    self.write_type = write_type
 
     print('-----------------------------------------')
     print(f'cache size = {CACHE_SIZE}')
@@ -200,6 +202,10 @@ def memory_access(address, word, access_type):
 
 
       # for part two check whether this is a write-through cache
+      # if write through
+
+
+
       if not cache.sets[index].blocks[block_index].dirty and cache.sets[index].blocks[block_index].valid:
         cache.sets[index].blocks[block_index].dirty = True
 
@@ -288,7 +294,7 @@ def testF():
 
 def main():
   global cache
-  cache = Cache(NUM_SETS, ASSOCIATIVITY, CACHE_BLOCK_SIZE)
+  cache = Cache(NUM_SETS, ASSOCIATIVITY, CACHE_BLOCK_SIZE, 0)
 
   # prefill memory: the word at memory[a] will be a
   for i in range(MEMORY_SIZE // 4):
