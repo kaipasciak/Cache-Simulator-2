@@ -146,10 +146,6 @@ def memory_access(address, word, access_type):
   range_low = (address >> cache.cache_block_size_bits) * CACHE_BLOCK_SIZE
   range_high = range_low + CACHE_BLOCK_SIZE - 1
 
-  #TODO: Handle associative cache as well
-  if ASSOCIATIVITY != 1:
-    print('ERROR: assuming direct-mapped cache')
-    assert(ASSOCIATIVITY == 1)
 
   found = False
   block_index = 0
@@ -182,6 +178,7 @@ def memory_access(address, word, access_type):
                    start = block_offset, size = WORDLENGTH)
       print(f'read hit [addr={address} index={index} block_index={block_index} tag={tag}: word={memval} ({range_low} - {range_high}]')
 
+
       # put tag in the tag queue -- for associative cache
        # TODO: Handle read miss
 
@@ -189,13 +186,38 @@ def memory_access(address, word, access_type):
     else: # write hit
       # write the word to the cache strting at
       # cache.sets[index].blocks[block_index].data[block_offset]
-      pass
+      word_to_bytes(dest=cache.sets[index].blocks[block_index].data,
+                    start=block_offset, word=word, size=WORDLENGTH)
+
 
       # for part two check whether this is a write-through cache
+      if not cache.sets[index].blocks[block_index].dirty and cache.sets[index].blocks[block_index].valid:
+        cache.sets[index].blocks[block_index].dirty = True
+
+        # Set the tag and valid flag for this block
+        cache.sets[index].blocks[block_index].tag = tag
+        cache.sets[index].blocks[block_index].valid = True
+
+        # Update the tag queue for this set
+        cache.sets[index].tag_queue.remove(tag)
+        cache.sets[index].tag_queue.insert(0, tag)
 
       memval = None
 
     return memval
+
+  else:
+    free_block = False
+    for i in range(len(cache.sets[index].blocks)):
+        if not cache.sets[index].blocks[i].valid:
+            block_index = i
+            free_block = True
+            break
+
+    if not free_block:
+        block_index = cache.sets[index].tag_queue.pop()
+        cache.sets[index].tag_queue.insert(0, tag)
+
 
   # otherwise, we have cache miss
   # this will be handled in part two
