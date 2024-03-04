@@ -182,6 +182,8 @@ def memory_access(address, word, access_type):
       for i in range(ASSOCIATIVITY):
         if cache.sets[index].tag_queue[i] == tag:
           cache.sets[index].tag_queue.pop(i)
+          break
+        cache.sets[index].tag_queue.pop()
 
       cache.sets.append(tag)
 
