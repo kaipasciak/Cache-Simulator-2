@@ -172,6 +172,7 @@ def memory_access(address, word, access_type):
 
   if found:
     if access_type == AccessType.READ:
+      # TODO: Read hit
       if not cache.sets[index].blocks[block_index].valid:
         print('error: tag found in cache, but block is not valid')
         assert cache.sets[index].blocks[block_index].valid
@@ -193,8 +194,8 @@ def memory_access(address, word, access_type):
 
       cache.sets[index].tag_queue.insert(0, tag)
 
-    # TODO: Write hits and misses
-    else: # write hit
+    # TODO: Write hit
+    else: # TODO: If write through
       # write the word to the cache strting at
       # cache.sets[index].blocks[block_index].data[block_offset]
       word_to_bytes(dest=cache.sets[index].blocks[block_index].data,
@@ -205,7 +206,7 @@ def memory_access(address, word, access_type):
       # if write through
       if cache.write_type == 0:
 
-      # if write back
+      # TODO: if write back
       else:
         if not cache.sets[index].blocks[block_index].dirty and cache.sets[index].blocks[block_index].valid:
           cache.sets[index].blocks[block_index].dirty = True
@@ -220,14 +221,10 @@ def memory_access(address, word, access_type):
 
         memval = None
 
-
-
-
     return memval
 
   else:
-    # check for free block
-    # cache miss
+    # TODO: read miss
     free_block = False
     for i in range(len(cache.sets[index].blocks)):
       # if valid is set to false then use that block
@@ -254,7 +251,11 @@ def memory_access(address, word, access_type):
         cache.sets[index].tag_queue.insert(0, tag)
 
         #
+    # TODO: If write through
+    if access_type == AccessType.READ:
 
+    else:
+    # TODO: IF write back
 
 
   # otherwise, we have cache miss
