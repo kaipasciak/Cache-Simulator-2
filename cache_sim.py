@@ -272,6 +272,8 @@ def memory_access(address, word, access_type):
 
   return rtnval
 
+  # TODO: When evicting a block marked dirty in write back cache, write contents of block to memory before evicting
+
 #======================================================================
 
 def read_word(address):
