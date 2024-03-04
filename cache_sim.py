@@ -146,10 +146,6 @@ def memory_access(address, word, access_type):
   range_low = (address >> cache.cache_block_size_bits) * CACHE_BLOCK_SIZE
   range_high = range_low + CACHE_BLOCK_SIZE - 1
 
-  #TODO: Handle associative cache as well
-  if ASSOCIATIVITY != 1:
-    print('ERROR: assuming direct-mapped cache')
-    assert(ASSOCIATIVITY == 1)
 
   found = False
   block_index = 0
