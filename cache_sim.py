@@ -180,7 +180,13 @@ def memory_access(address, word, access_type):
 
 
       # put tag in the tag queue -- for associative cache
-       # TODO: Handle read miss
+      for i in range(len(cache.sets[index].tag_queue)):
+        if cache.sets[index].tag_queue[i] == tag:
+          cache.sets[index].tag_queue.pop(i)
+          break
+        cache.sets[index].tag_queue.pop()
+
+      cache.sets.append(tag)
 
     # TODO: Write hits and misses
     else: # write hit
