@@ -208,7 +208,7 @@ def memory_access(address, word, access_type):
     # etc.
 
 
-  return rtnval
+  #return rtnval
 
 #======================================================================
 
@@ -223,6 +223,34 @@ def write_word(address, word):
 #======================================================================
 
 def test():
+  addr = 4 + (13 << 6) + (45 << 10)
+  word_to_bytes(cache.sets[13].blocks[0].data, 4, addr, WORDLENGTH)
+  cache.sets[13].blocks[0].valid = True
+  cache.sets[13].blocks[0].tag = 45
+  read_word(1152)
+  read_word(2176)
+  read_word(3200)
+  read_word(4224)
+  read_word(5248)
+  read_word(7296)
+  read_word(4224)
+  read_word(3200)
+  write_word(7312, 17)
+  read_word(7320)
+  read_word(4228)
+  read_word(3212)
+  write_word(5248, 5)
+  read_word(5248)
+  write_word(8320, 7)
+  read_word(8324)
+  read_word(9344)
+  read_word(11392)
+  read_word(16512)
+  read_word(17536)
+  read_word(8320)
+  read_word(17536)
+  read_word(17532)
+
 
 def testF():
   # direct mapped, preloaded cache
