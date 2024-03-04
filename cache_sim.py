@@ -184,9 +184,9 @@ def memory_access(address, word, access_type):
         if cache.sets[index].tag_queue[i] == tag:
           cache.sets[index].tag_queue.pop(i)
           break
-        cache.sets[index].tag_queue.pop()
+        cache.sets[index].tag_queue.pop(len(cache.sets[index].tag_queue) - 1)
 
-      cache.sets.append(tag)
+      cache.sets[index].tag_queue.insert(0, tag)
 
     # TODO: Write hits and misses
     else: # write hit
@@ -213,6 +213,7 @@ def memory_access(address, word, access_type):
     return memval
 
   else:
+    # check for free block
     free_block = False
     for i in range(len(cache.sets[index].blocks)):
         if not cache.sets[index].blocks[i].valid:
