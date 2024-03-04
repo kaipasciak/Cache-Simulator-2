@@ -224,7 +224,8 @@ def memory_access(address, word, access_type):
     return memval
 
   else:
-    # TODO: read miss
+    # TODO: Choose block to use
+
     free_block = False
     for i in range(len(cache.sets[index].blocks)):
       # if valid is set to false then use that block
@@ -251,11 +252,17 @@ def memory_access(address, word, access_type):
         cache.sets[index].tag_queue.insert(0, tag)
 
         #
-    # TODO: If write through
+    # TODO: Read miss
     if access_type == AccessType.READ:
 
     else:
-    # TODO: IF write back
+    # TODO: Write miss
+      # TODO: Write through
+      if cache.write_type = WriteType.THROUGH:
+
+      # TODO: Write back
+      else:
+
 
 
   # otherwise, we have cache miss
