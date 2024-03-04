@@ -21,6 +21,9 @@ memory = bytearray(MEMORY_SIZE)
 #======================================================================
 # for part one, we need only reads
 
+class WriteType(Enum):
+  THROUGH = 0
+  BACK = 1
 class AccessType(Enum):
   READ = 0
   WRITE = 1
@@ -228,9 +231,20 @@ def memory_access(address, word, access_type):
             free_block = True
             break
 
+    # if not, replace the free block
     if not free_block:
-        block_index = cache.sets[index].tag_queue.pop()
+        # get tag for block to be replaced
+        old_block_tag = cache.sets[index].tag_queue.pop()
+        # get its index
+        for i in range(len(cache.sets[index].blocks)):
+          if cache.sets[index].blocks[i].tag == old_block_tag:
+            block_index = i
+
+        # insert tag for new block into tag queue
         cache.sets[index].tag_queue.insert(0, tag)
+
+        #
+
 
 
   # otherwise, we have cache miss
