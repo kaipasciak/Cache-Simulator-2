@@ -203,21 +203,25 @@ def memory_access(address, word, access_type):
 
       # for part two check whether this is a write-through cache
       # if write through
+      if cache.write_type == 0:
+
+      # if write back
+      else:
+        if not cache.sets[index].blocks[block_index].dirty and cache.sets[index].blocks[block_index].valid:
+          cache.sets[index].blocks[block_index].dirty = True
+
+          # Set the tag and valid flag for this block
+          cache.sets[index].blocks[block_index].tag = tag
+          cache.sets[index].blocks[block_index].valid = True
+
+          # Update the tag queue for this set
+          cache.sets[index].tag_queue.remove(tag)
+          cache.sets[index].tag_queue.insert(0, tag)
+
+        memval = None
 
 
 
-      if not cache.sets[index].blocks[block_index].dirty and cache.sets[index].blocks[block_index].valid:
-        cache.sets[index].blocks[block_index].dirty = True
-
-        # Set the tag and valid flag for this block
-        cache.sets[index].blocks[block_index].tag = tag
-        cache.sets[index].blocks[block_index].valid = True
-
-        # Update the tag queue for this set
-        cache.sets[index].tag_queue.remove(tag)
-        cache.sets[index].tag_queue.insert(0, tag)
-
-      memval = None
 
     return memval
 
