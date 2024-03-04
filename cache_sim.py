@@ -213,10 +213,17 @@ def memory_access(address, word, access_type):
     return memval
 
   else:
+    # cache miss
     free_block = False
     for i in range(len(cache.sets[index].blocks)):
+      # if valid is set to false then use that block
         if not cache.sets[index].blocks[i].valid:
             block_index = i
+            # Update the tag queue for this set
+            cache.sets[index].tag_queue.remove(tag)
+            cache.sets[index].tag_queue.insert(0, tag)
+            # set to valid
+            cache.sets[index].blocks[block_index].valid = True
             free_block = True
             break
 
