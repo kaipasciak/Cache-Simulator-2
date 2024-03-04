@@ -179,9 +179,13 @@ def memory_access(address, word, access_type):
       print(f'read hit [addr={address} index={index} block_index={block_index} tag={tag}: word={memval} ({range_low} - {range_high}]')
 
       # put tag in the tag queue -- for associative cache
-       # TODO: Handle read miss
+      for i in range(ASSOCIATIVITY):
+        if cache.sets[index].tag_queue[i] == tag:
+          cache.sets[index].tag_queue.pop(i)
 
-    # TODO: Write hits and misses
+      cache.sets.append(tag)
+
+    # TODO: Write hits
     else: # write hit
       # write the word to the cache strting at
       # cache.sets[index].blocks[block_index].data[block_offset]
@@ -193,10 +197,14 @@ def memory_access(address, word, access_type):
 
     return memval
 
-  # otherwise, we have cache miss
-  # this will be handled in part two
-  # check whether there is a free block; if not, then need to replace
-  # etc.
+  # miss
+  else:
+
+    # otherwise, we have cache miss
+    # this will be handled in part two
+    # check whether there is a free block; if not, then need to replace
+    # etc.
+
 
   return rtnval
 
@@ -211,6 +219,8 @@ def write_word(address, word):
   memory_access(address, word, AccessType.WRITE)
 
 #======================================================================
+
+def test():
 
 def testF():
   # direct mapped, preloaded cache
