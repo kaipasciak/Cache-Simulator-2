@@ -146,10 +146,12 @@ def memory_access(address, word, access_type):
   range_low = (address >> cache.cache_block_size_bits) * CACHE_BLOCK_SIZE
   range_high = range_low + CACHE_BLOCK_SIZE - 1
 
+  #TODO: Handle associative cache as well
   if ASSOCIATIVITY != 1:
     print('ERROR: assuming direct-mapped cache')
     assert(ASSOCIATIVITY == 1)
 
+  #TODO: Handle writes
   if access_type != AccessType.READ:
     print('ERROR: assuming only reads')
     assert(access_type == AccessType.READ)
@@ -186,7 +188,9 @@ def memory_access(address, word, access_type):
       print(f'read hit [addr={address} index={index} block_index={block_index} tag={tag}: word={memval} ({range_low} - {range_high}]')
 
       # put tag in the tag queue -- for associative cache
+       # TODO: Handle read miss
 
+    # TODO: Write hits and misses
     else: # write hit
       # write the word to the cache strting at
       # cache.sets[index].blocks[block_index].data[block_offset]
