@@ -151,11 +151,6 @@ def memory_access(address, word, access_type):
     print('ERROR: assuming direct-mapped cache')
     assert(ASSOCIATIVITY == 1)
 
-  #TODO: Handle writes
-  if access_type != AccessType.READ:
-    print('ERROR: assuming only reads')
-    assert(access_type == AccessType.READ)
-
   found = False
   block_index = 0
   if cache.sets[index].blocks[block_index].tag == tag:
