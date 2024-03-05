@@ -209,6 +209,7 @@ def memory_access(address, word, access_type):
                 write_to_data(cache.sets[index].blocks[block_index].data, block_offset, word, WORDLENGTH)
                 write_to_memory(address, word)
             else:
+                # TODO: Write back
                 if not cache.sets[index].blocks[block_index].dirty and cache.sets[index].blocks[block_index].valid:
                     cache.sets[index].blocks[block_index].dirty = True
 
@@ -239,7 +240,10 @@ def memory_access(address, word, access_type):
                 cache.sets[index].blocks[block_index].valid = True
                 free_block = i
                 if access_type == AccessType.READ:
-                    cache.sets[index].blocks[free_block].data = read_from_memory(address, CACHE_BLOCK_SIZE)
+                    memval =read_from_memory(address, CACHE_BLOCK_SIZE)
+                    cache.sets[index].blocks[free_block].data = memval
+                    print(f'read hit [addr={address} index={index} block_index={block_index} tag={tag}: word={memval} ({range_low} - {range_high}]')
+
                 else:
                     # Write back
                     if cache.write_type == WriteType.BACK:
