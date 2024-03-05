@@ -185,6 +185,8 @@ def memory_access(address, word, access_type):
                 source=cache.sets[index].blocks[block_index].data,
                 start=block_offset, size=WORDLENGTH)
             print(f'read hit [addr={address} index={index} block_index={block_index} tag={tag}: word={memval} ({range_low} - {range_high}]')
+            print("Tag Queue: ")
+            print(cache.sets[index].tag_queue)
 
             # put tag in the tag queue -- for associative cache
             for i in range(len(cache.sets[index].tag_queue)):
@@ -208,6 +210,9 @@ def memory_access(address, word, access_type):
                 # TODO: Write through
                 write_to_data(cache.sets[index].blocks[block_index].data, block_offset, word, WORDLENGTH)
                 write_to_memory(address, word)
+                print(f'write through hit [addr={address} index={index} block_index={block_index} tag={tag}: word={memval} ({range_low} - {range_high}]')
+                print("Tag Queue: ")
+                print(cache.sets[index].tag_queue)
             else:
                 # TODO: Write back
                 if not cache.sets[index].blocks[block_index].dirty and cache.sets[index].blocks[block_index].valid:
@@ -222,6 +227,11 @@ def memory_access(address, word, access_type):
                 cache.sets[index].tag_queue.insert(0, tag)
 
                 memval = None
+
+                print(f'write back hit [addr={address} index={index} block_index={block_index} tag={tag}: word={memval} ({range_low} - {range_high}]')
+                print("Tag Queue: ")
+                print(cache.sets[index].tag_queue)
+
 
         return memval
 
@@ -243,8 +253,9 @@ def memory_access(address, word, access_type):
                 if access_type == AccessType.READ:
                     memval =read_from_memory(address, CACHE_BLOCK_SIZE)
                     cache.sets[index].blocks[free_block].data = memval
-                    print(f'read hit [addr={address} index={index} block_index={block_index} tag={tag}: word={memval} ({range_low} - {range_high}]')
-
+                    print(f'read miss [addr={address} index={index} block_index={block_index} tag={tag}: word={memval} ({range_low} - {range_high}]')
+                    print("Tag Queue: ")
+                    print(cache.sets[index].tag_queue)
                 else:
                     # Write back
                     if cache.write_type == WriteType.BACK:
@@ -255,18 +266,28 @@ def memory_access(address, word, access_type):
                         cache.sets[index].blocks[free_block].dirty = True
                         # Set the tag for this block
                         cache.sets[index].blocks[free_block].tag = tag
+                        print(f'write back miss [addr={address} index={index} block_index={block_index} tag={tag}: word={memval} ({range_low} - {range_high}]')
+                        print("Tag Queue: ")
+                        print(cache.sets[index].tag_queue)
                     # Write through
                     else:
-                        word_to_bytes(dest=memory,
-                                      start=)
-
+                        write_to_data(cache.sets[index].blocks[block_index].data, block_offset, word, WORDLENGTH)
+                        write_to_memory(address, word)
+                        print(f'write through miss [addr={address} index={index} block_index={block_index} tag={tag}: word={memval} ({range_low} - {range_high}]')
+                        print("Tag Queue: ")
+                        print(cache.sets[index].tag_queue)
                 break
 
         # if no invalid blocks, replace the least recently used block
         # must evict a block
         if free_block is None:
             # Write the contents of block to be replaced to memory
-            write_to_memory()
+            memory_address = (tag << (logb2(NUM_SETS) + logb2(CACHE_BLOCK_SIZE))) | (
+                        index << logb2(CACHE_BLOCK_SIZE)) | block_offset
+            old_word = cache.sets[index].blocks[block_index].data
+            write_to_memory(memory_address, old_word)
+            print(f'Evict tag {cache.sets[index].blocks[block_index].tag}, in block index: {block_index}')
+
             # get tag for block to be replaced and remove from queue
             # Find least recently used block
             old_block_tag = cache.sets[index].tag_queue.pop()
@@ -357,6 +378,8 @@ def testF():
     word = read_word(addr)
     print(f'address = {addr} {binary_to_string(16, addr)}; word = {word}')
     print()
+
+
 
 #======================================================================
 
