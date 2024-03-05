@@ -213,13 +213,13 @@ def memory_access(address, word, access_type):
                 if not cache.sets[index].blocks[block_index].dirty and cache.sets[index].blocks[block_index].valid:
                     cache.sets[index].blocks[block_index].dirty = True
 
-                    # Set the tag and valid flag for this block
-                    cache.sets[index].blocks[block_index].tag = tag
-                    cache.sets[index].blocks[block_index].valid = True
+                # Set the tag and valid flag for this block
+                cache.sets[index].blocks[block_index].tag = tag
+                cache.sets[index].blocks[block_index].valid = True
 
-                    # Update the tag queue for this set
-                    cache.sets[index].tag_queue.remove(tag)
-                    cache.sets[index].tag_queue.insert(0, tag)
+                # Update the tag queue for this set
+                cache.sets[index].tag_queue.remove(tag)
+                cache.sets[index].tag_queue.insert(0, tag)
 
                 memval = None
 
@@ -229,6 +229,7 @@ def memory_access(address, word, access_type):
         # CACHE MISS
         # TODO: Choose block to use
         free_block = None
+        # Try to find an unused block
         for i in range(len(cache.sets[index].blocks)):
             # Check if any blocks aren't valid
             if not cache.sets[index].blocks[i].valid:
@@ -262,10 +263,12 @@ def memory_access(address, word, access_type):
                 break
 
         # if no invalid blocks, replace the least recently used block
+        # must evict a block
         if free_block is None:
             # Write the contents of block to be replaced to memory
             write_to_memory()
             # get tag for block to be replaced and remove from queue
+            # Find least recently used block
             old_block_tag = cache.sets[index].tag_queue.pop()
             # get its index
             for i in range(len(cache.sets[index].blocks)):
@@ -280,15 +283,20 @@ def memory_access(address, word, access_type):
             if access_type == AccessType.READ:
                 cache.sets[index].blocks[block_index].data = read_from_memory(address, CACHE_BLOCK_SIZE)
 
+
             else:
                 # TODO: Write miss
                 # TODO: Write through
                 if cache.write_type == WriteType.THROUGH:
-                    pass  # TODO: Write through
-
+                    write_to_memory(address, word)
+                    word_to_bytes(dest=cache.sets[index].blocks[free_block].data,
+                                  start=block_offset, word=word, size=WORDLENGTH)
                 # TODO: Write back
                 else:
-                    pass  # TODO: Write back
+                    word_to_bytes(dest=cache.sets[index].blocks[free_block].data,
+                                  start=block_offset, word=word, size=WORDLENGTH)
+                    if not cache.sets[index].blocks[block_index].dirty and cache.sets[index].blocks[block_index].valid:
+                        cache.sets[index].blocks[block_index].dirty = True
 
     # otherwise, we have cache miss
     # this will be handled in part two
