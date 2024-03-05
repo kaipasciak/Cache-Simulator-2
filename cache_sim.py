@@ -172,6 +172,7 @@ def memory_access(address, word, access_type):
     #   else find a target block and replace and then write the value
 
     if found:
+        # CACHE HIT
         if access_type == AccessType.READ:
             # TODO: Read hit
             if not cache.sets[index].blocks[block_index].valid:
@@ -195,7 +196,7 @@ def memory_access(address, word, access_type):
             cache.sets[index].tag_queue.insert(0, tag)
 
         # TODO: Write hit
-        else:  # TODO: If write through
+        else:
             # write the word to the cache strting at
             # cache.sets[index].blocks[block_index].data[block_offset]
             word_to_bytes(dest=cache.sets[index].blocks[block_index].data,
@@ -206,6 +207,8 @@ def memory_access(address, word, access_type):
             if cache.write_type == WriteType.THROUGH:
                 write_to_data(cache.sets[index].blocks[block_index].data, block_offset, word, WORDLENGTH)
                 pass  # TODO: Write through
+            else:
+
 
 
             # TODO: if write back
@@ -226,11 +229,13 @@ def memory_access(address, word, access_type):
         return memval
 
     else:
+        # CACHE MISS
         # TODO: Choose block to use
         free_block = None
         for i in range(len(cache.sets[index].blocks)):
-            # if valid is set to false then use that block
+            # Check if any blocks aren't valid
             if not cache.sets[index].blocks[i].valid:
+                # Invalid block found, use this block
                 # Update the tag queue for this set
                 cache.sets[index].tag_queue.remove(tag)
                 cache.sets[index].tag_queue.insert(0, tag)
@@ -238,21 +243,29 @@ def memory_access(address, word, access_type):
                 cache.sets[index].blocks[block_index].valid = True
                 free_block = i
                 if access_type == AccessType.READ:
-                    cache.sets[index].blocks[block_index].data = read_from_memory(address, CACHE_BLOCK_SIZE)
+                    cache.sets[index].blocks[free_block].data = read_from_memory(address, CACHE_BLOCK_SIZE)
                 else:
-                    word_to_bytes(dest=cache.sets[index].blocks[block_index].data,
-                                  start=block_offset, word=word, size=WORDLENGTH)
+                    # Write back
+                    if cache.write_type == WriteType.BACK:
+                        word_to_bytes(dest=cache.sets[index].blocks[free_block].data,
+                                      start=block_offset, word=word, size=WORDLENGTH)
 
-                    # Set the dirty flag for this block
-                    cache.sets[index].blocks[block_index].dirty = True
-                    # Set the tag for this block
-                    cache.sets[index].blocks[block_index].tag = tag
+                        # Set the dirty flag for this block
+                        cache.sets[index].blocks[free_block].dirty = True
+                        # Set the tag for this block
+                        cache.sets[index].blocks[free_block].tag = tag
+                    # Write through
+                    else:
+                        word_to_bytes(dest=memory,
+                                      start=)
 
                 break
 
-        # if not, replace the free block
-        if free_block is not None:
+        # if no invalid blocks, replace the least recently used block
+        if free_block is None:
             # get tag for block to be replaced
+            # Write the contents of block to be replaced to memory
+            write_to_memory()
             old_block_tag = cache.sets[index].tag_queue.pop()
             # get its index
             for i in range(len(cache.sets[index].blocks)):
@@ -262,10 +275,10 @@ def memory_access(address, word, access_type):
             # insert tag for new block into tag queue
             cache.sets[index].tag_queue.insert(0, tag)
 
-            #
-            # TODO: Read miss
+
+            # TODO: Read miss for overwriting block
             if access_type == AccessType.READ:
-                pass  # TODO: Read miss
+                cache.sets[index].blocks[block_index].data = read_from_memory(address, CACHE_BLOCK_SIZE)
 
             else:
                 # TODO: Write miss
@@ -294,6 +307,15 @@ def write_to_data(data, start, word, size):
         v = word % 256
         data[i + start] = v
         word = word // 256
+
+def write_to_memory(address, word):
+    # Convert the word to bytes
+    data = bytearray(WORDLENGTH)
+    word_to_bytes(data, 0, word, WORDLENGTH)
+
+    # Write the data to memory
+    start_address = (address // CACHE_BLOCK_SIZE) * CACHE_BLOCK_SIZE
+    memory[start_address:start_address + CACHE_BLOCK_SIZE] = data
 
 def read_from_memory(address, block_size):
     start_address = (address // block_size) * block_size
