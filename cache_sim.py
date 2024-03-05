@@ -205,13 +205,9 @@ def memory_access(address, word, access_type):
             # for part two check whether this is a write-through cache
             # if write through
             if cache.write_type == WriteType.THROUGH:
+                # TODO: Write through
                 write_to_data(cache.sets[index].blocks[block_index].data, block_offset, word, WORDLENGTH)
-                pass  # TODO: Write through
-            else:
-
-
-
-            # TODO: if write back
+                write_to_memory(address, word)
             else:
                 if not cache.sets[index].blocks[block_index].dirty and cache.sets[index].blocks[block_index].valid:
                     cache.sets[index].blocks[block_index].dirty = True
@@ -263,9 +259,9 @@ def memory_access(address, word, access_type):
 
         # if no invalid blocks, replace the least recently used block
         if free_block is None:
-            # get tag for block to be replaced
             # Write the contents of block to be replaced to memory
             write_to_memory()
+            # get tag for block to be replaced and remove from queue
             old_block_tag = cache.sets[index].tag_queue.pop()
             # get its index
             for i in range(len(cache.sets[index].blocks)):
