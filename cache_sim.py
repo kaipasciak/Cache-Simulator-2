@@ -204,7 +204,9 @@ def memory_access(address, word, access_type):
             # for part two check whether this is a write-through cache
             # if write through
             if cache.write_type == WriteType.THROUGH:
+                write_to_data(cache.sets[index].blocks[block_index].data, block_offset, word, WORDLENGTH)
                 pass  # TODO: Write through
+
 
             # TODO: if write back
             else:
@@ -286,6 +288,12 @@ def memory_access(address, word, access_type):
 
 #======================================================================
 
+
+def write_to_data(data, start, word, size):
+    for i in range(size):
+        v = word % 256
+        data[i + start] = v
+        word = word // 256
 
 def read_from_memory(address, block_size):
     start_address = (address // block_size) * block_size
