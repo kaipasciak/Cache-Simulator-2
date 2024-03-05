@@ -245,7 +245,6 @@ def memory_access(address, word, access_type):
             if not cache.sets[index].blocks[i].valid:
                 # Invalid block found, use this block
                 # Update the tag queue for this set
-                cache.sets[index].tag_queue.remove(tag)
                 cache.sets[index].tag_queue.insert(0, tag)
                 # set to valid
                 cache.sets[index].blocks[block_index].valid = True
@@ -285,7 +284,7 @@ def memory_access(address, word, access_type):
             memory_address = (tag << (logb2(NUM_SETS) + logb2(CACHE_BLOCK_SIZE))) | (
                         index << logb2(CACHE_BLOCK_SIZE)) | block_offset
             old_word = cache.sets[index].blocks[block_index].data
-            write_to_memory(memory_address, old_word)
+            word_to_bytes(memory, block_offset, old_word, WORDLENGTH)
             print(f'Evict tag {cache.sets[index].blocks[block_index].tag}, in block index: {block_index}')
 
             # get tag for block to be replaced and remove from queue
@@ -352,7 +351,7 @@ def read_from_memory(address, block_size):
 
 
 def read_word(address):
-    return memory_access(address, None, AccessType.READ)
+    return memory_access(address, 0, AccessType.READ)
 
 #======================================================================
 
@@ -378,7 +377,29 @@ def testF():
     word = read_word(addr)
     print(f'address = {addr} {binary_to_string(16, addr)}; word = {word}')
     print()
-
+    read_word(1152)
+    read_word(2176)
+    read_word(3200)
+    read_word(4224)
+    read_word(5248)
+    read_word(7296)
+    read_word(4224)
+    read_word(3200)
+    write_word(7312, 17)
+    read_word(7320)
+    read_word(4228)
+    read_word(3212)
+    write_word(5248, 5)
+    read_word(5248)
+    write_word(8320, 7)
+    read_word(8324)
+    read_word(9344)
+    read_word(11392)
+    read_word(16512)
+    read_word(17536)
+    read_word(8320)
+    read_word(17536)
+    read_word(17532)
 
 
 #======================================================================
